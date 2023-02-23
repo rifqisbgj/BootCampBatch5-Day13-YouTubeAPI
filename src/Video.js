@@ -1,11 +1,13 @@
 import React from "react";
+import ListVideo from "./ListVideo";
 import SearchBar from "./SearchBar";
+import ShowVideo from "./ShowVideo";
 // set up api key
 import youtube from "./youtube";
 
 class Video extends React.Component {
   // penyimpanan data video
-  state = { videos: [] };
+  state = { videos: [], selectedVideo: null };
 
   onSearchSubmit = async (term) => {
     const res = await youtube.get("/search", {
@@ -17,57 +19,27 @@ class Video extends React.Component {
     console.log(res.data.items);
   };
 
+  getSelectedVideo = (video) => {
+    this.setState({ selectedVideo: video });
+  };
+
   render() {
     return (
       <div className="ui container" style={{ marginTop: "10px" }}>
         {/* get term from search bar */}
         <SearchBar onSubmit={this.onSearchSubmit} />
         <div>
-          <div class="ui equal width grid">
-            {/* tampilkan video pada index pertama */}
-            {this.state.videos.map((content, i) => {
-              if (i === 0) {
-                return (
-                  <div className="eight wide column">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${content.id.videoId}`}
-                      title={content.snippet.channelTitle}
-                      frameborder="0"
-                      width="560"
-                      height="315"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowfullscreen
-                    ></iframe>
-                  </div>
-                );
-              }
-              return null;
-            })}
-
-            {/* tampilkan list video pada index 1 - 4 dengan menampilkan thumbnail dan judul */}
-            <div className="column">
-              {this.state.videos.map((content, i) => {
-                if (i > 0) {
-                  return (
-                    <div>
-                      <img
-                        width="480px"
-                        height="360px"
-                        src={content.snippet.thumbnails.high.url}
-                        alt=""
-                        class="ui small top aligned image"
-                      />
-                      <span>
-                        {" "}
-                        <b>{content.snippet.title}</b>
-                      </span>
-
-                      <div class="ui divider"></div>
-                    </div>
-                  );
-                }
-                return null;
-              })}
+          <div class="ui grid">
+            <div className="ui row">
+              <div className="eleven wide column">
+                <ShowVideo video={this.state.selectedVideo} />
+              </div>
+              <div className="five wide column">
+                <ListVideo
+                  getSelectedVideo={this.getSelectedVideo}
+                  videos={this.state.videos}
+                />
+              </div>
             </div>
           </div>
         </div>
